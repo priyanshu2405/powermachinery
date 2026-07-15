@@ -2,25 +2,28 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const db = require('../db');
+const { User } = require('../models');
 
-// Login Route
-router.post('/login', (req, res) => {
-    const { username, password } = req.body;
-
-    db.get(`SELECT * FROM users WHERE username = ?`, [username], (err, user) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
-        if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+router.post('/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
 
         const isMatch = bcrypt.compareSync(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
 
-        const payload = { user: { id: user.id, username: user.username } };
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' }, (err, token) => {
-            if (err) throw err;
-            res.json({ token, username: user.username });
-        });
-    });
+        const token = jwt.sign({ username }, process.env.JWT_SECRET || 'supersecretjwtkey_12345', { expiresIn: '1h' });
+        res.json({ token });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;

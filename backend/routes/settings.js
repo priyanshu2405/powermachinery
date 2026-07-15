@@ -1,36 +1,35 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const { Setting } = require('../models');
 const auth = require('../middleware/auth');
 
-// Get all settings (Public)
-router.get('/', (req, res) => {
-    db.all(`SELECT setting_key, setting_value FROM settings`, [], (err, rows) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
-        
-        // Convert array of key-values to an object
-        const settingsMap = {};
-        rows.forEach(row => {
-            settingsMap[row.setting_key] = row.setting_value;
+router.get('/', async (req, res) => {
+    try {
+        const settings = await Setting.find().lean();
+        const settingsObj = {};
+        settings.forEach(s => {
+            settingsObj[s.setting_key] = s.setting_value;
         });
-        
-        res.json(settingsMap);
-    });
+        res.json(settingsObj);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-// Update a setting (Admin)
-router.put('/:key', auth, (req, res) => {
-    const { key } = req.params;
-    const { value } = req.body;
-
-    db.run(
-        `UPDATE settings SET setting_value = ? WHERE setting_key = ?`,
-        [value, key],
-        function(err) {
-            if (err) return res.status(500).json({ message: 'Database error' });
-            res.json({ message: 'Setting updated successfully' });
-        }
-    );
+router.put('/:key', auth, async (req, res) => {
+    try {
+        const { value } = req.body;
+        await Setting.findOneAndUpdate(
+            { setting_key: req.params.key },
+            { setting_value: value },
+            { upsert: true, new: true }
+        );
+        res.json({ message: 'Updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;

@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const db = require('../db');
-const auth = require('../middleware/auth');
 const fs = require('fs');
+const { TeamMember } = require('../models');
+const auth = require('../middleware/auth');
 
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)){
@@ -17,51 +17,53 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.get('/', (req, res) => {
-    db.all(`SELECT * FROM team_members ORDER BY display_order ASC, id ASC`, [], (err, rows) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
-        res.json(rows);
-    });
+router.get('/', async (req, res) => {
+    try {
+        const docs = await TeamMember.find().sort('display_order _id').lean();
+        res.json(docs.map(d => ({ ...d, id: d._id })));
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-router.post('/', [auth, upload.single('image')], (req, res) => {
-    const { name, role, bio, display_order } = req.body;
-    let imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-    
-    db.run(
-        `INSERT INTO team_members (name, role, bio, imageUrl, display_order) VALUES (?, ?, ?, ?, ?)`,
-        [name, role, bio, imageUrl, display_order || 0],
-        function(err) {
-            if (err) return res.status(500).json({ message: 'Database error' });
-            res.json({ id: this.lastID, name, role, bio, imageUrl, display_order });
+router.post('/', [auth, upload.single('image')], async (req, res) => {
+    try {
+        const { name, role, bio, display_order } = req.body;
+        let imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+        
+        const newMember = await TeamMember.create({
+            name, role, bio, imageUrl, display_order: display_order || 0
+        });
+        
+        res.json({ ...newMember.toObject(), id: newMember._id });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.put('/:id', [auth, upload.single('image')], async (req, res) => {
+    try {
+        const { name, role, bio, display_order } = req.body;
+        const updateData = { name, role, bio, display_order: display_order || 0 };
+        
+        if (req.file) {
+            updateData.imageUrl = `/uploads/${req.file.filename}`;
         }
-    );
+
+        await TeamMember.findByIdAndUpdate(req.params.id, updateData);
+        res.json({ message: 'Updated successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-router.put('/:id', [auth, upload.single('image')], (req, res) => {
-    const { name, role, bio, display_order } = req.body;
-    const { id } = req.params;
-
-    db.get(`SELECT imageUrl FROM team_members WHERE id = ?`, [id], (err, row) => {
-        if (err || !row) return res.status(404).json({ message: 'Member not found' });
-        let imageUrl = req.file ? `/uploads/${req.file.filename}` : row.imageUrl;
-
-        db.run(
-            `UPDATE team_members SET name = ?, role = ?, bio = ?, imageUrl = ?, display_order = ? WHERE id = ?`,
-            [name, role, bio, imageUrl, display_order || 0, id],
-            function(err) {
-                if (err) return res.status(500).json({ message: 'Database error' });
-                res.json({ message: 'Updated successfully' });
-            }
-        );
-    });
-});
-
-router.delete('/:id', auth, (req, res) => {
-    db.run(`DELETE FROM team_members WHERE id = ?`, [req.params.id], (err) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
+router.delete('/:id', auth, async (req, res) => {
+    try {
+        await TeamMember.findByIdAndDelete(req.params.id);
         res.json({ message: 'Deleted successfully' });
-    });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;

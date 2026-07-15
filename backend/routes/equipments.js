@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const db = require('../db');
-const auth = require('../middleware/auth');
 const fs = require('fs');
+const { Equipment } = require('../models');
+const auth = require('../middleware/auth');
 
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)){
@@ -17,51 +17,53 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.get('/', (req, res) => {
-    db.all(`SELECT * FROM equipments ORDER BY display_order ASC, id ASC`, [], (err, rows) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
-        res.json(rows);
-    });
+router.get('/', async (req, res) => {
+    try {
+        const docs = await Equipment.find().sort('display_order _id').lean();
+        res.json(docs.map(d => ({ ...d, id: d._id })));
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-router.post('/', [auth, upload.single('image')], (req, res) => {
-    const { name, category, display_order } = req.body;
-    let imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
-    
-    db.run(
-        `INSERT INTO equipments (name, category, imageUrl, display_order) VALUES (?, ?, ?, ?)`,
-        [name, category, imageUrl, display_order || 0],
-        function(err) {
-            if (err) return res.status(500).json({ message: 'Database error' });
-            res.json({ id: this.lastID, name, category, imageUrl, display_order });
+router.post('/', [auth, upload.single('image')], async (req, res) => {
+    try {
+        const { name, category, display_order } = req.body;
+        let imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+        
+        const newEq = await Equipment.create({
+            name, category, imageUrl, display_order: display_order || 0
+        });
+        
+        res.json({ ...newEq.toObject(), id: newEq._id });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.put('/:id', [auth, upload.single('image')], async (req, res) => {
+    try {
+        const { name, category, display_order } = req.body;
+        const updateData = { name, category, display_order: display_order || 0 };
+        
+        if (req.file) {
+            updateData.imageUrl = `/uploads/${req.file.filename}`;
         }
-    );
+
+        await Equipment.findByIdAndUpdate(req.params.id, updateData);
+        res.json({ message: 'Updated successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
-router.put('/:id', [auth, upload.single('image')], (req, res) => {
-    const { name, category, display_order } = req.body;
-    const { id } = req.params;
-
-    db.get(`SELECT imageUrl FROM equipments WHERE id = ?`, [id], (err, row) => {
-        if (err || !row) return res.status(404).json({ message: 'Equipment not found' });
-        let imageUrl = req.file ? `/uploads/${req.file.filename}` : row.imageUrl;
-
-        db.run(
-            `UPDATE equipments SET name = ?, category = ?, imageUrl = ?, display_order = ? WHERE id = ?`,
-            [name, category, imageUrl, display_order || 0, id],
-            function(err) {
-                if (err) return res.status(500).json({ message: 'Database error' });
-                res.json({ message: 'Updated successfully' });
-            }
-        );
-    });
-});
-
-router.delete('/:id', auth, (req, res) => {
-    db.run(`DELETE FROM equipments WHERE id = ?`, [req.params.id], (err) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
+router.delete('/:id', auth, async (req, res) => {
+    try {
+        await Equipment.findByIdAndDelete(req.params.id);
         res.json({ message: 'Deleted successfully' });
-    });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;
