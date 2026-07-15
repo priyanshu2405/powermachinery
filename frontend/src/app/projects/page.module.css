@@ -1,0 +1,150 @@
+.container {
+  padding: 60px 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.pageTitle {
+  font-size: 3.5rem;
+  color: var(--secondary-dark);
+  margin-bottom: 16px;
+}
+
+.pageSubtitle {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+}
+
+.section {
+  margin-bottom: 80px;
+}
+
+.projectsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 40px;
+}
+
+.projectCard {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.projectCard:hover {
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  transform: translateY(-5px);
+  border-color: var(--primary-color);
+}
+
+.imagePlaceholder {
+  height: 220px;
+  background-color: var(--secondary-dark);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.cardContent {
+  padding: 32px;
+}
+
+.tag {
+  display: inline-block;
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--primary-dark);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.projectCard h3 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+
+.projectCard p {
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 80px 0;
+}
+
+.experienceWrapper {
+  background-color: #f1f5f9;
+  border-radius: var(--radius);
+  padding: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.expHeader {
+  max-width: 600px;
+  margin-bottom: 48px;
+}
+
+.icon {
+  color: var(--primary-color);
+  margin-bottom: 24px;
+}
+
+.expHeader h2 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.expHeader p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.partnerList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.partnerItem {
+  background-color: #fff;
+  padding: 16px 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  font-weight: 600;
+  color: var(--secondary-dark);
+}
+
+.checkIcon {
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .experienceWrapper {
+    padding: 40px 24px;
+  }
+  .pageTitle {
+    font-size: 2.5rem;
+  }
+}

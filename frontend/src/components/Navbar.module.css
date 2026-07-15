@@ -1,0 +1,89 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.navContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoIconWrapper {
+  background-color: var(--primary-color);
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoIcon {
+  color: #fff;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.companyName {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--secondary-dark);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subName {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.navLinks {
+  display: flex;
+  gap: 32px;
+}
+
+.link {
+  color: var(--secondary-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.link:hover {
+  color: var(--primary-color);
+}
+
+.mobileMenu {
+  display: none;
+  cursor: pointer;
+  color: var(--secondary-dark);
+}
+
+@media (max-width: 992px) {
+  .navLinks {
+    display: none;
+  }
+  
+  .mobileMenu {
+    display: block;
+  }
+}

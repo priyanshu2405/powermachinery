@@ -1,0 +1,93 @@
+.footer {
+  background-color: var(--secondary-dark);
+  color: var(--text-light);
+  padding-top: 80px;
+}
+
+.footerGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 60px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.logo h2 {
+  color: #fff;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.logoIcon {
+  color: var(--primary-color);
+}
+
+.tagline {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.description {
+  color: #94a3b8;
+  max-width: 400px;
+}
+
+.linksSection h3, .contactSection h3 {
+  color: #fff;
+  font-size: 1.25rem;
+  margin-bottom: 24px;
+}
+
+.linkList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.linkList a {
+  color: #94a3b8;
+  transition: var(--transition);
+}
+
+.linkList a:hover {
+  color: var(--primary-color);
+}
+
+.contactSection p {
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.action {
+  margin-top: 24px;
+}
+
+.bottomBar {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 24px 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 992px) {
+  .footerGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .footerGrid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}

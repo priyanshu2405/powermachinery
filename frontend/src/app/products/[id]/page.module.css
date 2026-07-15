@@ -1,0 +1,150 @@
+.container {
+  padding: 40px 24px;
+}
+
+.loadingContainer, .errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 1.25rem;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 16px 32px;
+  border-radius: 8px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  transition: var(--transition);
+}
+
+.backLink:hover {
+  color: var(--primary-color);
+}
+
+.productWrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  border-radius: 24px;
+  padding: 48px;
+  margin-top: 24px;
+}
+
+.imageSection {
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--surface-hover);
+  aspect-ratio: 4/3;
+  position: relative;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary-color);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  align-self: flex-start;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: var(--text-main);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 32px;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin-bottom: 32px;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+  color: var(--text-main);
+}
+
+.description {
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.specsList {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.specsList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--text-muted);
+}
+
+.checkIcon {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.actions {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+@media (max-width: 992px) {
+  .productWrapper {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+}
