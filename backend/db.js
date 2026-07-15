@@ -5,10 +5,7 @@ const { User, Setting, TeamMember, Equipment, CaseStudy, Partner } = require('./
 const connectDB = async () => {
     try {
         const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/mbcrushings';
-        await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
+        await mongoose.connect(uri);
         console.log('MongoDB connected successfully');
         
         await seedDatabase();
