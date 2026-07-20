@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import styles from './Footer.module.css';
-import { HardHat } from 'lucide-react';
 import { getSettings } from '../lib/api';
 
 export default async function Footer() {
@@ -10,7 +9,7 @@ export default async function Footer() {
       <div className={`container ${styles.footerGrid}`}>
         <div className={styles.brandInfo}>
           <div className={styles.logo}>
-            <HardHat size={32} className={styles.logoIcon} />
+            <img src="/logo.jpg" alt="Logo" className={styles.logoImage} />
             <h2 style={{ fontSize: '1.2rem' }}>{settings.company_name}</h2>
           </div>
           <p className={styles.tagline}>Building Infrastructure with Strength.</p>

@@ -41,8 +41,8 @@ const seedDatabase = async () => {
     const teamCount = await TeamMember.countDocuments();
     if (teamCount === 0) {
         const initialTeam = [
-            { name: 'Mr. Rishi Kumar', role: 'Director', bio: 'With decades of visionary leadership in the infrastructure and construction sector, Mr. Kumar guides the strategic direction of ABHIRISHI INFRA PRIVATE LIMITED, ensuring our commitment to quality and ethical practices.', display_order: 1 },
-            { name: 'Mr. Ambikesh', role: 'Director', bio: "Spearheading our daily operations and technological advancements, Mr. Ambikesh's dynamic approach drives our operational efficiency and builds lasting partnerships with industry giants.", display_order: 2 }
+            { name: 'Mr. Abikesh Shukla', role: 'Director', bio: "Spearheading our daily operations and technological advancements, Mr. Abikesh's dynamic approach drives our operational efficiency and builds lasting partnerships with industry giants.", display_order: 1 },
+            { name: 'Mr. Rishi Shukla', role: 'Director', bio: 'With decades of visionary leadership in the infrastructure and construction sector, Mr. Rishi Shukla guides the strategic direction of ABHIRISHI INFRA PRIVATE LIMITED, ensuring our commitment to quality and ethical practices.', display_order: 2 }
         ];
         await TeamMember.insertMany(initialTeam);
     }

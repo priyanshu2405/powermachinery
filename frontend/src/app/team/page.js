@@ -20,7 +20,7 @@ export default async function TeamPage() {
                 {member.imageUrl ? (
                   <img src={`https://mbcrushings-api.onrender.com${member.imageUrl}`} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                 ) : (
-                  member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+                  member.name.split(' ').filter(n => !['mr.', 'mrs.', 'ms.', 'dr.', 'mr', 'mrs', 'ms', 'dr'].includes(n.toLowerCase())).map(n => n[0]).join('').substring(0, 2).toUpperCase()
                 )}
               </div>
               <h3>{member.name}</h3>

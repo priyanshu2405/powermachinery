@@ -21,17 +21,21 @@
 }
 
 .logoIconWrapper {
-  background-color: var(--primary-color);
   width: 48px;
   height: 48px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
-.logoIcon {
-  color: #fff;
+.logoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #ffffff;
 }
 
 .logoText {

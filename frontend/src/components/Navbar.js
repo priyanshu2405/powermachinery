@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { HardHat, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import styles from './Navbar.module.css';
 import { getSettings } from '../lib/api';
 
@@ -10,7 +10,7 @@ export default async function Navbar() {
       <div className={`container ${styles.navContainer}`}>
         <Link href="/" className={styles.logo}>
           <div className={styles.logoIconWrapper}>
-            <HardHat size={28} className={styles.logoIcon} />
+            <img src="/logo.jpg" alt="Logo" className={styles.logoImage} />
           </div>
           <div className={styles.logoText}>
             <span className={styles.companyName} style={{ fontSize: '1rem' }}>{settings.company_name}</span>

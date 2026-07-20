@@ -24,8 +24,13 @@
   margin: 0;
 }
 
-.logoIcon {
-  color: var(--primary-color);
+.logoImage {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tagline {
