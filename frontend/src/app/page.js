@@ -1,10 +1,12 @@
 import Link from 'next/link';
-import { ArrowRight, Target, ShieldCheck, Clock, Award } from 'lucide-react';
+import { ArrowRight, Target, ShieldCheck, Clock, Award, KeyRound } from 'lucide-react';
 import styles from './page.module.css';
-import { getSettings } from '../lib/api';
+import { getSettings, getRentals, BASE_URL } from '../lib/api';
 
 export default async function Home() {
   const settings = await getSettings();
+  const rentals = await getRentals();
+  const featuredRentals = rentals.slice(0, 3);
   return (
     <div className={styles.home}>
       {/* Section 1: Hero Banner */}
@@ -82,6 +84,48 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* Machinery for Rent Section */}
+      {featuredRentals.length > 0 && (
+        <section className="section bg-slate">
+          <div className="container">
+            <div className={styles.sectionTitleBlock}>
+              <h2 className="section-title">Machinery for Rent</h2>
+              <p className={styles.sectionSubtitle}>
+                Explore our modern, heavy-duty rental fleet with flexible contracts and competitive rates.
+              </p>
+            </div>
+            
+            <div className={styles.rentalsGrid}>
+              {featuredRentals.map((machine) => (
+                <Link href="/rentals" key={machine.id} className={styles.rentalHomeCard}>
+                  <div className={styles.rentalHomeImageContainer}>
+                    {machine.imageUrls && machine.imageUrls.length > 0 ? (
+                      <img src={`${BASE_URL}${machine.imageUrls[0]}`} alt={machine.name} className={styles.rentalHomeImage} />
+                    ) : (
+                      <div className={styles.rentalHomePlaceholder}>No Image</div>
+                    )}
+                    <span className={styles.rentalHomePriceBadge}>{machine.price}</span>
+                  </div>
+                  <div className={styles.rentalHomeContent}>
+                    <h3>{machine.name}</h3>
+                    <p>{machine.details || 'View detailed technical specifications, operational capacity, and availability.'}</p>
+                    <span className={styles.rentalHomeLink}>
+                      View Fleet Details <ArrowRight size={16} />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            
+            <div className={styles.centerAction}>
+              <Link href="/rentals" className="btn btn-primary">
+                View Rental Fleet <KeyRound size={18} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Section 4: Mission & Vision */}
       <section className={`section bg-dark`}>

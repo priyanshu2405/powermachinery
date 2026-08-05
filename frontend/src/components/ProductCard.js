@@ -2,13 +2,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import styles from './ProductCard.module.css';
 import { ArrowRight } from 'lucide-react';
+import { BASE_URL } from '../lib/api';
 
 export default function ProductCard({ product }) {
   return (
     <div className={`${styles.card} glass`}>
       <div className={styles.imageContainer}>
         {product.imageUrl ? (
-          <img src={`http://localhost:5000${product.imageUrl}`} alt={product.name} className={styles.image} />
+          <img src={`${BASE_URL}${product.imageUrl}`} alt={product.name} className={styles.image} />
         ) : (
           <div className={styles.placeholder}>No Image</div>
         )}

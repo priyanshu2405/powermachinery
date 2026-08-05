@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
+import { BASE_URL } from '../../../lib/api';
 import styles from './page.module.css';
 
 export default function ProductDetail() {
@@ -12,7 +13,7 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/products/${params.id}`)
+    fetch(`${BASE_URL}/api/products/${params.id}`)
       .then(res => {
         if (!res.ok) throw new Error('Product not found');
         return res.json();
@@ -54,7 +55,7 @@ export default function ProductDetail() {
       <div className={`${styles.productWrapper} glass`}>
         <div className={styles.imageSection}>
           {product.imageUrl ? (
-            <img src={`http://localhost:5000${product.imageUrl}`} alt={product.name} className={styles.image} />
+            <img src={`${BASE_URL}${product.imageUrl}`} alt={product.name} className={styles.image} />
           ) : (
             <div className={styles.placeholder}>No Image Available</div>
           )}

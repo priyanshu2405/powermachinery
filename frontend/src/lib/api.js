@@ -1,4 +1,5 @@
-const BASE_URL = 'https://mbcrushings-api.onrender.com';
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 
 export async function getSettings() {
   try {
@@ -60,3 +61,15 @@ export async function getPartners() {
     return [];
   }
 }
+
+export async function getRentals() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/rentals`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch rentals');
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+

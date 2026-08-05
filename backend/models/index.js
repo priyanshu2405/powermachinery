@@ -38,11 +38,20 @@ const PartnerSchema = new mongoose.Schema({
     display_order: { type: Number, default: 0 }
 });
 
+const RentalMachineSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    price: { type: String, required: true },
+    imageUrls: [{ type: String }],
+    details: { type: String },
+    display_order: { type: Number, default: 0 }
+});
+
 module.exports = {
     User: mongoose.model('User', UserSchema),
     Setting: mongoose.model('Setting', SettingSchema),
     TeamMember: mongoose.model('TeamMember', TeamMemberSchema),
     Equipment: mongoose.model('Equipment', EquipmentSchema),
     CaseStudy: mongoose.model('CaseStudy', CaseStudySchema),
-    Partner: mongoose.model('Partner', PartnerSchema)
+    Partner: mongoose.model('Partner', PartnerSchema),
+    RentalMachine: mongoose.model('RentalMachine', RentalMachineSchema)
 };

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const { User, Setting, TeamMember, Equipment, CaseStudy, Partner } = require('./models');
+const { User, Setting, TeamMember, Equipment, CaseStudy, Partner, RentalMachine } = require('./models');
 
 const connectDB = async () => {
     try {
@@ -85,6 +85,29 @@ const seedDatabase = async () => {
             { name: 'RVR Projects', display_order: 5 }
         ];
         await Partner.insertMany(initialPartners);
+    }
+
+    // Seed Rental Machines
+    const rentalsCount = await RentalMachine.countDocuments();
+    if (rentalsCount === 0) {
+        const initialRentals = [
+            {
+                name: 'SANY SY215C Heavy Excavator',
+                price: '₹1,80,000 / Month',
+                imageUrls: [],
+                details: 'Operating weight of 21.5 tons. Cummins engine with 150 HP. Bucket capacity of 1.0 m³. Best suited for heavy-duty earthmoving, quarrying, and site preparation. Extremely fuel efficient with high-speed performance.',
+                display_order: 1
+            },
+            {
+                name: 'L&T 9020 Wheel Loader',
+                price: '₹1,20,000 / Month',
+                imageUrls: [],
+                details: 'High productivity wheel loader with 3.0 m³ bucket capacity. Powered by a fuel-efficient engine. Ideal for aggregate loading, bulk handling, and construction site chores. Superior dump clearance and spacious cabin.',
+                display_order: 2
+            }
+        ];
+        await RentalMachine.insertMany(initialRentals);
+        console.log('Default rental machines seeded');
     }
 };
 

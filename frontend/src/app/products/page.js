@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import ProductCard from '../../components/ProductCard';
+import { BASE_URL } from '../../lib/api';
 import styles from './page.module.css';
 import { Loader2 } from 'lucide-react';
 
@@ -10,7 +11,7 @@ export default function ProductsPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch(`${BASE_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
         setProducts(data);

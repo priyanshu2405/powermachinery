@@ -25,6 +25,7 @@ app.use('/api/settings', require('./routes/settings'));
 app.use('/api/team', require('./routes/team'));
 app.use('/api/equipments', require('./routes/equipments'));
 app.use('/api/projects', require('./routes/projects'));
+app.use('/api/rentals', require('./routes/rentals'));
 
 app.listen(PORT, () => {
     console.log(`Backend server running on http://localhost:${PORT}`);

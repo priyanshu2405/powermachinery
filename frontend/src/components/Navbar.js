@@ -21,6 +21,7 @@ export default async function Navbar() {
           <Link href="/" className={styles.link}>Home</Link>
           <Link href="/team" className={styles.link}>Team</Link>
           <Link href="/equipment" className={styles.link}>Equipment</Link>
+          <Link href="/rentals" className={styles.link}>Rentals</Link>
           <Link href="/projects" className={styles.link}>Projects</Link>
           <Link href="/contact" className={styles.link}>Contact</Link>
         </nav>

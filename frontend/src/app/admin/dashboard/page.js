@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, Loader2, LogOut, Plus, Trash2, Edit2, X } from 'lucide-react';
 import styles from './page.module.css';
+import { BASE_URL } from '../../../lib/api';
 
-const API_BASE = 'https://mbcrushings-api.onrender.com/api';
+const API_BASE = `${BASE_URL}/api`;
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -22,6 +23,13 @@ export default function AdminDashboard() {
   const [equipments, setEquipments] = useState([]);
   const [showEqForm, setShowEqForm] = useState(false);
   const [currentEq, setCurrentEq] = useState(null);
+
+  // Rentals State
+  const [rentals, setRentals] = useState([]);
+  const [showRentalForm, setShowRentalForm] = useState(false);
+  const [currentRental, setCurrentRental] = useState(null);
+  const [removedImages, setRemovedImages] = useState([]);
+  const [newImagePreviews, setNewImagePreviews] = useState([]);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,12 +45,14 @@ export default function AdminDashboard() {
     Promise.all([
       fetch(`${API_BASE}/settings`).then(res => res.json()),
       fetch(`${API_BASE}/team`).then(res => res.json()),
-      fetch(`${API_BASE}/equipments`).then(res => res.json())
+      fetch(`${API_BASE}/equipments`).then(res => res.json()),
+      fetch(`${API_BASE}/rentals`).then(res => res.json())
     ])
-    .then(([settingsData, teamData, eqData]) => {
+    .then(([settingsData, teamData, eqData, rentalsData]) => {
       setSettings(settingsData);
       setTeam(teamData);
       setEquipments(eqData);
+      setRentals(rentalsData);
       setLoading(false);
     })
     .catch(err => {
@@ -156,6 +166,64 @@ export default function AdminDashboard() {
     setTimeout(() => setMessage({ text: '', type: '' }), 3000);
   };
 
+  // --- Rental Handlers ---
+  const handleRentalSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setMessage({ text: '', type: '' });
+    const token = localStorage.getItem('adminToken');
+    const formData = new FormData(e.target);
+    const id = currentRental?.id;
+    const url = id ? `${API_BASE}/rentals/${id}` : `${API_BASE}/rentals`;
+    const method = id ? 'PUT' : 'POST';
+
+    if (id && currentRental.imageUrls) {
+      const keptImages = currentRental.imageUrls.filter(img => !removedImages.includes(img));
+      keptImages.forEach(img => formData.append('existingImages', img));
+    }
+
+    try {
+      const res = await fetch(url, { method, headers: { 'Authorization': `Bearer ${token}` }, body: formData });
+      if (!res.ok) throw new Error('Failed to save');
+      const newRentals = await fetch(`${API_BASE}/rentals`).then(r => r.json());
+      setRentals(newRentals);
+      setShowRentalForm(false);
+      setCurrentRental(null);
+      setRemovedImages([]);
+      setNewImagePreviews([]);
+      setMessage({ text: 'Rental machine saved!', type: 'success' });
+    } catch (err) {
+      setMessage({ text: 'Failed to save rental machine', type: 'error' });
+    } finally {
+      setSaving(false);
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const previews = files.map(file => URL.createObjectURL(file));
+      setNewImagePreviews(previews);
+    } else {
+      setNewImagePreviews([]);
+    }
+  };
+
+  const deleteRental = async (id) => {
+    if (!confirm('Are you sure you want to delete this rental machine?')) return;
+    const token = localStorage.getItem('adminToken');
+    try {
+      const res = await fetch(`${API_BASE}/rentals/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+      if (!res.ok) throw new Error('Failed to delete');
+      setRentals(rentals.filter(r => r.id !== id));
+      setMessage({ text: 'Deleted successfully', type: 'success' });
+    } catch (err) {
+      setMessage({ text: 'Failed to delete', type: 'error' });
+    }
+    setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     router.push('/admin/login');
@@ -184,6 +252,9 @@ export default function AdminDashboard() {
           </div>
           <div className={`${styles.navItem} ${activeTab === 'equipment' ? styles.active : ''}`} onClick={() => { setActiveTab('equipment'); setShowEqForm(false); }}>
             Equipment Gallery
+          </div>
+          <div className={`${styles.navItem} ${activeTab === 'rentals' ? styles.active : ''}`} onClick={() => { setActiveTab('rentals'); setShowRentalForm(false); setRemovedImages([]); setNewImagePreviews([]); }}>
+            Rentals Management
           </div>
           <div className={styles.navItem}>Projects (Coming Soon)</div>
         </div>
@@ -366,6 +437,150 @@ export default function AdminDashboard() {
                             <div style={{ display: 'flex', gap: '8px' }}>
                               <button onClick={() => { setCurrentEq(eq); setShowEqForm(true); }} className={styles.iconBtn} title="Edit"><Edit2 size={16} /></button>
                               <button onClick={() => deleteEq(eq.id)} className={`${styles.iconBtn} ${styles.danger}`} title="Delete"><Trash2 size={16} /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'rentals' && (
+            <div className={`${styles.card} glass`}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <div>
+                  <h2>Machines for Rent</h2>
+                  <p className={styles.subtitle} style={{ marginBottom: 0 }}>Manage rental fleet machinery and prices.</p>
+                </div>
+                {!showRentalForm && (
+                  <button className="btn btn-primary" onClick={() => { setCurrentRental(null); setShowRentalForm(true); setRemovedImages([]); setNewImagePreviews([]); }}>
+                    <Plus size={18} /> Add Rental Machine
+                  </button>
+                )}
+              </div>
+
+              {showRentalForm ? (
+                <div className={styles.formWrapper}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                    <h3>{currentRental ? 'Edit Rental Machine' : 'Add Rental Machine'}</h3>
+                    <button type="button" onClick={() => { setShowRentalForm(false); setCurrentRental(null); setRemovedImages([]); setNewImagePreviews([]); }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
+                  </div>
+                  <form onSubmit={handleRentalSubmit} className={styles.form} encType="multipart/form-data">
+                    <div className={styles.formGroup}>
+                      <label>Machine Name</label>
+                      <input type="text" name="name" className="input-field" defaultValue={currentRental?.name || ''} required />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>Price (e.g., ₹1,20,000 / Month)</label>
+                      <input type="text" name="price" className="input-field" defaultValue={currentRental?.price || ''} required />
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>Machine Details & Technical Specs</label>
+                      <textarea name="details" className="input-field" rows="4" defaultValue={currentRental?.details || ''}></textarea>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label>Upload Machine Images (Select multiple files)</label>
+                      <input 
+                        type="file" 
+                        name="images" 
+                        className="input-field" 
+                        accept="image/*" 
+                        multiple 
+                        onChange={handleFileChange}
+                      />
+                    </div>
+
+                    {newImagePreviews.length > 0 && (
+                      <div className={styles.formGroup}>
+                        <label>Newly Selected Images Preview</label>
+                        <div className={styles.imageGridPreview}>
+                          {newImagePreviews.map((url, idx) => (
+                            <div key={idx} className={styles.imagePreviewItem}>
+                              <img src={url} alt="" className={styles.previewThumb} />
+                              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '4px', textAlign: 'center' }}>New Image {idx + 1}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {currentRental && currentRental.imageUrls && currentRental.imageUrls.length > 0 && (
+                      <div className={styles.formGroup}>
+                        <label>Current Images (Click 'Remove' to delete image on save)</label>
+                        <div className={styles.imageGridPreview}>
+                          {currentRental.imageUrls.map((url, idx) => {
+                            const isRemoved = removedImages.includes(url);
+                            return (
+                              <div key={idx} className={`${styles.imagePreviewItem} ${isRemoved ? styles.imageRemoved : ''}`}>
+                                <img src={`${BASE_URL}${url}`} alt="" className={styles.previewThumb} />
+                                <button
+                                  type="button"
+                                  className={styles.removePreviewBtn}
+                                  onClick={() => {
+                                    if (isRemoved) {
+                                      setRemovedImages(removedImages.filter(img => img !== url));
+                                    } else {
+                                      setRemovedImages([...removedImages, url]);
+                                    }
+                                  }}
+                                >
+                                  {isRemoved ? 'Keep' : 'Remove'}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className={styles.formGroup}>
+                      <label>Display Order</label>
+                      <input type="number" name="display_order" className="input-field" defaultValue={currentRental?.display_order || 0} />
+                    </div>
+                    <button type="submit" className="btn btn-primary" disabled={saving}>
+                      {saving ? <><Loader2 className="animate-spin" size={18} /> Saving...</> : <><Save size={18} /> Save Machine</>}
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <div className={styles.tableWrapper}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>Images</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Order</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rentals.map(rental => (
+                        <tr key={rental.id}>
+                          <td>
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                              {rental.imageUrls && rental.imageUrls.length > 0 ? (
+                                rental.imageUrls.slice(0, 3).map((url, idx) => (
+                                  <img key={idx} src={`${BASE_URL}${url}`} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                ))
+                              ) : (
+                                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>No images</span>
+                              )}
+                              {rental.imageUrls && rental.imageUrls.length > 3 && (
+                                <span style={{ alignSelf: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>+{rental.imageUrls.length - 3}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{ fontWeight: 500 }}>{rental.name}</td>
+                          <td>{rental.price}</td>
+                          <td>{rental.display_order}</td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button onClick={() => { setCurrentRental(rental); setShowRentalForm(true); setRemovedImages([]); }} className={styles.iconBtn} title="Edit"><Edit2 size={16} /></button>
+                              <button onClick={() => deleteRental(rental.id)} className={`${styles.iconBtn} ${styles.danger}`} title="Delete"><Trash2 size={16} /></button>
                             </div>
                           </td>
                         </tr>

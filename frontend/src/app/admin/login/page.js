@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock } from 'lucide-react';
 import styles from './page.module.css';
+import { BASE_URL } from '../../../lib/api';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -17,7 +18,7 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const res = await fetch('https://mbcrushings-api.onrender.com/api/auth/login', {
+      const res = await fetch(`${BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
