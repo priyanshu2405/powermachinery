@@ -1,27 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const { TeamMember } = require('../models');
 const auth = require('../middleware/auth');
-
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)){
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage: storage });
+const { upload, getFileUrl } = require('../middleware/upload');
 
 router.get('/', async (req, res) => {
     try {
         const docs = await TeamMember.find().sort('display_order _id').lean();
         res.json(docs.map(d => ({ ...d, id: d._id })));
     } catch (err) {
+        console.error('Error fetching team members:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -29,14 +17,19 @@ router.get('/', async (req, res) => {
 router.post('/', [auth, upload.single('image')], async (req, res) => {
     try {
         const { name, role, bio, display_order } = req.body;
-        let imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+        const imageUrl = getFileUrl(req.file);
         
         const newMember = await TeamMember.create({
-            name, role, bio, imageUrl, display_order: display_order || 0
+            name,
+            role,
+            bio,
+            imageUrl,
+            display_order: display_order || 0
         });
         
         res.json({ ...newMember.toObject(), id: newMember._id });
     } catch (err) {
+        console.error('Error creating team member:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -47,12 +40,13 @@ router.put('/:id', [auth, upload.single('image')], async (req, res) => {
         const updateData = { name, role, bio, display_order: display_order || 0 };
         
         if (req.file) {
-            updateData.imageUrl = `/uploads/${req.file.filename}`;
+            updateData.imageUrl = getFileUrl(req.file);
         }
 
         await TeamMember.findByIdAndUpdate(req.params.id, updateData);
         res.json({ message: 'Updated successfully' });
     } catch (err) {
+        console.error('Error updating team member:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -62,6 +56,7 @@ router.delete('/:id', auth, async (req, res) => {
         await TeamMember.findByIdAndDelete(req.params.id);
         res.json({ message: 'Deleted successfully' });
     } catch (err) {
+        console.error('Error deleting team member:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });

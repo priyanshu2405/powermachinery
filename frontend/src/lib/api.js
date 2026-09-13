@@ -1,5 +1,20 @@
 export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
+/**
+ * Returns a complete URL for displaying an image.
+ * If the image path is already a full URL (e.g. from Cloudinary), it is returned directly.
+ * If it is a relative path (e.g. /uploads/...), it prepends BASE_URL.
+ */
+export function getImageUrl(path) {
+  if (!path) return '';
+  if (typeof path !== 'string') return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:') || path.startsWith('data:')) {
+    return path;
+  }
+  const cleanBase = BASE_URL.replace(/\/+$/, '');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${cleanBase}${cleanPath}`;
+}
 
 export async function getSettings() {
   try {

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { X, ChevronLeft, ChevronRight, Send, HelpCircle } from 'lucide-react';
 import RentalCard from './RentalCard';
 import styles from './RentalsList.module.css';
-import { BASE_URL } from '../lib/api';
+import { BASE_URL, getImageUrl } from '../lib/api';
 
 export default function RentalsList({ machines }) {
   const [selectedMachine, setSelectedMachine] = useState(null);
@@ -77,7 +77,7 @@ export default function RentalsList({ machines }) {
               {modalImages.length > 0 ? (
                 <div className={styles.imageSlider}>
                   <img 
-                    src={`${BASE_URL}${modalImages[activeSlideIndex]}`} 
+                    src={getImageUrl(modalImages[activeSlideIndex])} 
                     alt={`${selectedMachine.name} - View ${activeSlideIndex + 1}`} 
                     className={styles.mainImage}
                   />

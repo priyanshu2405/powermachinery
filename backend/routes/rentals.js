@@ -1,21 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { RentalMachine } = require('../models');
 const auth = require('../middleware/auth');
+const { upload, getFileUrls } = require('../middleware/upload');
 
 const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)){
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname))
-});
-const upload = multer({ storage: storage });
 
 // Get all rental machines
 router.get('/', async (req, res) => {
@@ -23,6 +14,7 @@ router.get('/', async (req, res) => {
         const docs = await RentalMachine.find().sort('display_order _id').lean();
         res.json(docs.map(d => ({ ...d, id: d._id })));
     } catch (err) {
+        console.error('Error fetching rentals:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -36,6 +28,7 @@ router.get('/:id', async (req, res) => {
         }
         res.json({ ...doc, id: doc._id });
     } catch (err) {
+        console.error('Error fetching rental machine:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -44,7 +37,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', [auth, upload.array('images', 5)], async (req, res) => {
     try {
         const { name, price, details, display_order } = req.body;
-        const imageUrls = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+        const imageUrls = req.files ? getFileUrls(req.files) : [];
         
         const newDoc = await RentalMachine.create({
             name,
@@ -73,7 +66,7 @@ router.put('/:id', [auth, upload.array('images', 5)], async (req, res) => {
                 : [req.body.existingImages];
         }
         
-        const newImages = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+        const newImages = req.files ? getFileUrls(req.files) : [];
         const imageUrls = [...existingImages, ...newImages];
         
         const updateData = {
@@ -104,16 +97,18 @@ router.delete('/:id', auth, async (req, res) => {
             return res.status(404).json({ message: 'Machine not found' });
         }
         
-        // Delete corresponding uploaded image files from disk to keep clean
+        // If images were stored on local disk, clean them up
         if (deletedDoc.imageUrls && deletedDoc.imageUrls.length > 0) {
             deletedDoc.imageUrls.forEach(imgUrl => {
-                const filename = imgUrl.split('/').pop();
-                const filePath = path.join(uploadDir, filename);
-                if (fs.existsSync(filePath)) {
-                    try {
-                        fs.unlinkSync(filePath);
-                    } catch (e) {
-                        console.error('Error deleting file:', filePath, e);
+                if (imgUrl.startsWith('/uploads/')) {
+                    const filename = imgUrl.split('/').pop();
+                    const filePath = path.join(uploadDir, filename);
+                    if (fs.existsSync(filePath)) {
+                        try {
+                            fs.unlinkSync(filePath);
+                        } catch (e) {
+                            console.error('Error deleting local file:', filePath, e);
+                        }
                     }
                 }
             });

@@ -1,6 +1,6 @@
 import { CheckCircle2, Building2 } from 'lucide-react';
 import styles from './page.module.css';
-import { getCaseStudies, getPartners, BASE_URL } from '../../lib/api';
+import { getCaseStudies, getPartners, getImageUrl } from '../../lib/api';
 
 export default async function ProjectsPage() {
   const caseStudies = await getCaseStudies();
@@ -20,7 +20,7 @@ export default async function ProjectsPage() {
             <div key={study.id} className={styles.projectCard}>
               <div className={styles.imagePlaceholder} style={study.imageUrl ? { backgroundColor: 'transparent' } : {}}>
                 {study.imageUrl ? (
-                  <img src={`${BASE_URL}${study.imageUrl}`} alt={study.client} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={getImageUrl(study.imageUrl)} alt={study.client} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <span>Project Site Image</span>
                 )}

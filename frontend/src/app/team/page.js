@@ -1,6 +1,6 @@
 import { Users, HardHat, Briefcase } from 'lucide-react';
 import styles from './page.module.css';
-import { getTeamMembers, BASE_URL } from '../../lib/api';
+import { getTeamMembers, getImageUrl } from '../../lib/api';
 
 export default async function TeamPage() {
   const teamMembers = await getTeamMembers();
@@ -18,7 +18,7 @@ export default async function TeamPage() {
             <div key={member.id} className={styles.managementCard}>
               <div className={styles.avatarPlaceholder}>
                 {member.imageUrl ? (
-                  <img src={`${BASE_URL}${member.imageUrl}`} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  <img src={getImageUrl(member.imageUrl)} alt={member.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                 ) : (
                   member.name.split(' ').filter(n => !['mr.', 'mrs.', 'ms.', 'dr.', 'mr', 'mrs', 'ms', 'dr'].includes(n.toLowerCase())).map(n => n[0]).join('').substring(0, 2).toUpperCase()
                 )}

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, Loader2, LogOut, Plus, Trash2, Edit2, X } from 'lucide-react';
 import styles from './page.module.css';
-import { BASE_URL } from '../../../lib/api';
+import { BASE_URL, getImageUrl } from '../../../lib/api';
 
 const API_BASE = `${BASE_URL}/api`;
 
@@ -515,7 +515,7 @@ export default function AdminDashboard() {
                             const isRemoved = removedImages.includes(url);
                             return (
                               <div key={idx} className={`${styles.imagePreviewItem} ${isRemoved ? styles.imageRemoved : ''}`}>
-                                <img src={`${BASE_URL}${url}`} alt="" className={styles.previewThumb} />
+                                <img src={getImageUrl(url)} alt="" className={styles.previewThumb} />
                                 <button
                                   type="button"
                                   className={styles.removePreviewBtn}
@@ -564,7 +564,7 @@ export default function AdminDashboard() {
                             <div style={{ display: 'flex', gap: '4px' }}>
                               {rental.imageUrls && rental.imageUrls.length > 0 ? (
                                 rental.imageUrls.slice(0, 3).map((url, idx) => (
-                                  <img key={idx} src={`${BASE_URL}${url}`} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                  <img key={idx} src={getImageUrl(url)} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
                                 ))
                               ) : (
                                 <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>No images</span>

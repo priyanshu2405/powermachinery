@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
-import { BASE_URL } from '../../../lib/api';
+import { BASE_URL, getImageUrl } from '../../../lib/api';
 import styles from './page.module.css';
 
 export default function ProductDetail() {
@@ -55,7 +55,7 @@ export default function ProductDetail() {
       <div className={`${styles.productWrapper} glass`}>
         <div className={styles.imageSection}>
           {product.imageUrl ? (
-            <img src={`${BASE_URL}${product.imageUrl}`} alt={product.name} className={styles.image} />
+            <img src={getImageUrl(product.imageUrl)} alt={product.name} className={styles.image} />
           ) : (
             <div className={styles.placeholder}>No Image Available</div>
           )}

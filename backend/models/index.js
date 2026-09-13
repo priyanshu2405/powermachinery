@@ -46,6 +46,15 @@ const RentalMachineSchema = new mongoose.Schema({
     display_order: { type: Number, default: 0 }
 });
 
+const ProductSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    description: { type: String },
+    price: { type: Number },
+    imageUrl: { type: String },
+    specifications: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
+
 module.exports = {
     User: mongoose.model('User', UserSchema),
     Setting: mongoose.model('Setting', SettingSchema),
@@ -53,5 +62,7 @@ module.exports = {
     Equipment: mongoose.model('Equipment', EquipmentSchema),
     CaseStudy: mongoose.model('CaseStudy', CaseStudySchema),
     Partner: mongoose.model('Partner', PartnerSchema),
-    RentalMachine: mongoose.model('RentalMachine', RentalMachineSchema)
+    RentalMachine: mongoose.model('RentalMachine', RentalMachineSchema),
+    Product: mongoose.model('Product', ProductSchema)
 };
+

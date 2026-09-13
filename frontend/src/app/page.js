@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Target, ShieldCheck, Clock, Award, KeyRound } from 'lucide-react';
 import styles from './page.module.css';
-import { getSettings, getRentals, BASE_URL } from '../lib/api';
+import { getSettings, getRentals, BASE_URL, getImageUrl } from '../lib/api';
 
 export default async function Home() {
   const settings = await getSettings();
@@ -101,7 +101,7 @@ export default async function Home() {
                 <Link href="/rentals" key={machine.id} className={styles.rentalHomeCard}>
                   <div className={styles.rentalHomeImageContainer}>
                     {machine.imageUrls && machine.imageUrls.length > 0 ? (
-                      <img src={`${BASE_URL}${machine.imageUrls[0]}`} alt={machine.name} className={styles.rentalHomeImage} />
+                      <img src={getImageUrl(machine.imageUrls[0])} alt={machine.name} className={styles.rentalHomeImage} />
                     ) : (
                       <div className={styles.rentalHomePlaceholder}>No Image</div>
                     )}

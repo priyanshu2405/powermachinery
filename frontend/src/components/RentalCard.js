@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Send, HelpCircle } from 'lucide-react';
 import styles from './RentalCard.module.css';
-import { BASE_URL } from '../lib/api';
+import { getImageUrl } from '../lib/api';
 
 export default function RentalCard({ machine, onViewDetails }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -25,7 +25,7 @@ export default function RentalCard({ machine, onViewDetails }) {
         {images.length > 0 ? (
           <>
             <img 
-              src={`${BASE_URL}${images[activeIndex]}`} 
+              src={getImageUrl(images[activeIndex])} 
               alt={`${machine.name} - Image ${activeIndex + 1}`} 
               className={styles.image} 
             />

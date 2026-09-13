@@ -1,5 +1,5 @@
 import styles from './page.module.css';
-import { getEquipments, BASE_URL } from '../../lib/api';
+import { getEquipments, getImageUrl } from '../../lib/api';
 
 export default async function EquipmentPage() {
   const equipments = await getEquipments();
@@ -16,7 +16,7 @@ export default async function EquipmentPage() {
           <div key={item.id} className={styles.equipmentCard}>
             <div className={styles.imagePlaceholder} style={item.imageUrl ? { backgroundColor: 'transparent' } : {}}>
               {item.imageUrl ? (
-                <img src={`${BASE_URL}${item.imageUrl}`} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={getImageUrl(item.imageUrl)} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 <span>{item.name} Image</span>
               )}
