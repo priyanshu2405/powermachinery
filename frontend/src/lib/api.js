@@ -28,7 +28,12 @@ export async function getSettings() {
       company_name: 'ABHIRISHI INFRA PRIVATE LIMITED',
       phone: '+91 88782 29637',
       email: 'info@abhirishiinfra.com',
-      address: 'House No 1783, Baliya Kheda, Omaxe City 1, Indore, Madhya Pradesh'
+      address: 'House No 1783, Baliya Kheda, Omaxe City 1, Indore, Madhya Pradesh',
+      about_title: 'About Us',
+      about_lead: 'We are industry leaders in providing robust infrastructure support through our state-of-the-art crushing plants.',
+      about_text_1: 'At ABHIRISHI INFRA PRIVATE LIMITED, we believe in laying the strongest foundations. We specialize in the operation and management of advanced 200/300 TPH crushing plants, delivering high-quality aggregates for mega infrastructure projects across the nation.',
+      about_text_2: 'Our operations are deeply rooted in ethical practices, ensuring transparency, environmental consciousness, and unwavering reliability for our partners.',
+      about_image: ''
     };
   }
 }

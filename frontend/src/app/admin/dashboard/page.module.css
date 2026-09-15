@@ -226,6 +226,24 @@ textarea.input-field {
   background-color: #16a34a;
 }
 
+.aboutPreviewContainer {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.aboutPreviewImg {
+  max-width: 360px;
+  max-height: 220px;
+  width: auto;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 @media (max-width: 992px) {
   .dashboardGrid {
     grid-template-columns: 1fr;

@@ -12,7 +12,19 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('settings');
   
   // Settings State
-  const [settings, setSettings] = useState({ company_name: '', phone: '', email: '', address: '' });
+  const [settings, setSettings] = useState({ 
+    company_name: '', 
+    phone: '', 
+    email: '', 
+    address: '',
+    about_title: '',
+    about_lead: '',
+    about_text_1: '',
+    about_text_2: '',
+    about_image: ''
+  });
+  const [aboutImageFile, setAboutImageFile] = useState(null);
+  const [aboutImagePreview, setAboutImagePreview] = useState('');
   
   // Team State
   const [team, setTeam] = useState([]);
@@ -50,6 +62,9 @@ export default function AdminDashboard() {
     ])
     .then(([settingsData, teamData, eqData, rentalsData]) => {
       setSettings(settingsData);
+      if (settingsData.about_image) {
+        setAboutImagePreview(getImageUrl(settingsData.about_image));
+      }
       setTeam(teamData);
       setEquipments(eqData);
       setRentals(rentalsData);
@@ -82,6 +97,75 @@ export default function AdminDashboard() {
       setMessage({ text: 'Settings updated successfully!', type: 'success' });
     } catch (err) {
       setMessage({ text: 'Failed to update settings', type: 'error' });
+    } finally {
+      setSaving(false);
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    }
+  };
+
+  // --- About Us Handlers ---
+  const handleAboutImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAboutImageFile(file);
+      setAboutImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleRemoveAboutImage = () => {
+    setAboutImageFile(null);
+    setAboutImagePreview('');
+    setSettings(prev => ({ ...prev, about_image: '' }));
+  };
+
+  const handleAboutSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setMessage({ text: '', type: '' });
+    const token = localStorage.getItem('adminToken');
+    try {
+      let updatedImageUrl = settings.about_image || '';
+      if (aboutImageFile) {
+        const formData = new FormData();
+        formData.append('image', aboutImageFile);
+        formData.append('key', 'about_image');
+        const uploadRes = await fetch(`${API_BASE}/settings/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        if (!uploadRes.ok) throw new Error('Failed to upload About Us image');
+        const uploadData = await uploadRes.json();
+        updatedImageUrl = uploadData.imageUrl;
+        setSettings(prev => ({ ...prev, about_image: updatedImageUrl }));
+      } else if (settings.about_image === '') {
+        await fetch(`${API_BASE}/settings/about_image`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ value: '' })
+        });
+      }
+
+      const aboutFields = {
+        about_title: settings.about_title || 'About Us',
+        about_lead: settings.about_lead || '',
+        about_text_1: settings.about_text_1 || '',
+        about_text_2: settings.about_text_2 || ''
+      };
+
+      for (const [k, v] of Object.entries(aboutFields)) {
+        await fetch(`${API_BASE}/settings/${k}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ value: v })
+        });
+      }
+
+      setAboutImageFile(null);
+      setMessage({ text: 'About Us section updated successfully!', type: 'success' });
+    } catch (err) {
+      console.error(err);
+      setMessage({ text: err.message || 'Failed to update About Us section', type: 'error' });
     } finally {
       setSaving(false);
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
@@ -247,6 +331,9 @@ export default function AdminDashboard() {
           <div className={`${styles.navItem} ${activeTab === 'settings' ? styles.active : ''}`} onClick={() => setActiveTab('settings')}>
             Global Settings
           </div>
+          <div className={`${styles.navItem} ${activeTab === 'about' ? styles.active : ''}`} onClick={() => setActiveTab('about')}>
+            About Us Section
+          </div>
           <div className={`${styles.navItem} ${activeTab === 'team' ? styles.active : ''}`} onClick={() => { setActiveTab('team'); setShowTeamForm(false); }}>
             Team Members
           </div>
@@ -289,6 +376,88 @@ export default function AdminDashboard() {
                 </div>
                 <button type="submit" className="btn btn-primary" disabled={saving}>
                   {saving ? <><Loader2 className="animate-spin" size={18} /> Saving...</> : <><Save size={18} /> Save Settings</>}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {activeTab === 'about' && (
+            <div className={`${styles.card} glass`}>
+              <h2>About Us Section</h2>
+              <p className={styles.subtitle}>Customize the heading, lead text, description, and showcase image for the About Us section on the homepage.</p>
+              <form onSubmit={handleAboutSave} className={styles.form}>
+                <div className={styles.formGroup}>
+                  <label>Section Title</label>
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    value={settings.about_title || ''} 
+                    placeholder="About Us"
+                    onChange={(e) => handleSettingsChange('about_title', e.target.value)} 
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Lead Subtitle / Highlight</label>
+                  <textarea 
+                    className="input-field" 
+                    rows="2" 
+                    value={settings.about_lead || ''} 
+                    placeholder="We are industry leaders in providing robust infrastructure support through our state-of-the-art crushing plants."
+                    onChange={(e) => handleSettingsChange('about_lead', e.target.value)} 
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Main Description - Paragraph 1</label>
+                  <textarea 
+                    className="input-field" 
+                    rows="4" 
+                    value={settings.about_text_1 || ''} 
+                    placeholder="At ABHIRISHI INFRA PRIVATE LIMITED, we believe in laying the strongest foundations..."
+                    onChange={(e) => handleSettingsChange('about_text_1', e.target.value)} 
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Main Description - Paragraph 2 (Optional)</label>
+                  <textarea 
+                    className="input-field" 
+                    rows="3" 
+                    value={settings.about_text_2 || ''} 
+                    placeholder="Our operations are deeply rooted in ethical practices..."
+                    onChange={(e) => handleSettingsChange('about_text_2', e.target.value)} 
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Showcase Image</label>
+                  <input 
+                    type="file" 
+                    className="input-field" 
+                    accept="image/*"
+                    onChange={handleAboutImageChange} 
+                  />
+                  {aboutImagePreview ? (
+                    <div className={styles.aboutPreviewContainer}>
+                      <img 
+                        src={aboutImagePreview} 
+                        alt="About Us Preview" 
+                        className={styles.aboutPreviewImg}
+                      />
+                      <button 
+                        type="button" 
+                        className={styles.removePreviewBtn} 
+                        style={{ marginTop: '8px', maxWidth: '160px' }}
+                        onClick={handleRemoveAboutImage}
+                      >
+                        Remove Image
+                      </button>
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+                      No image uploaded yet. A placeholder will be displayed on the homepage until an image is provided.
+                    </p>
+                  )}
+                </div>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? <><Loader2 className="animate-spin" size={18} /> Saving...</> : <><Save size={18} /> Save About Us Section</>}
                 </button>
               </form>
             </div>

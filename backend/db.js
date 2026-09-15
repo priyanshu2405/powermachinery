@@ -26,15 +26,23 @@ const seedDatabase = async () => {
     }
 
     // Seed Settings
-    const settingsCount = await Setting.countDocuments();
-    if (settingsCount === 0) {
-        const initialSettings = [
-            { setting_key: 'company_name', setting_value: 'ABHIRISHI INFRA PRIVATE LIMITED' },
-            { setting_key: 'phone', setting_value: '+91 88782 29637' },
-            { setting_key: 'email', setting_value: 'info@abhirishiinfra.com' },
-            { setting_key: 'address', setting_value: 'House No 1783, Baliya Kheda, Omaxe City 1, Indore, Madhya Pradesh' }
-        ];
-        await Setting.insertMany(initialSettings);
+    const defaultSettings = [
+        { setting_key: 'company_name', setting_value: 'ABHIRISHI INFRA PRIVATE LIMITED' },
+        { setting_key: 'phone', setting_value: '+91 88782 29637' },
+        { setting_key: 'email', setting_value: 'info@abhirishiinfra.com' },
+        { setting_key: 'address', setting_value: 'House No 1783, Baliya Kheda, Omaxe City 1, Indore, Madhya Pradesh' },
+        { setting_key: 'about_title', setting_value: 'About Us' },
+        { setting_key: 'about_lead', setting_value: 'We are industry leaders in providing robust infrastructure support through our state-of-the-art crushing plants.' },
+        { setting_key: 'about_text_1', setting_value: 'At ABHIRISHI INFRA PRIVATE LIMITED, we believe in laying the strongest foundations. We specialize in the operation and management of advanced 200/300 TPH crushing plants, delivering high-quality aggregates for mega infrastructure projects across the nation.' },
+        { setting_key: 'about_text_2', setting_value: 'Our operations are deeply rooted in ethical practices, ensuring transparency, environmental consciousness, and unwavering reliability for our partners.' },
+        { setting_key: 'about_image', setting_value: '' }
+    ];
+
+    for (const s of defaultSettings) {
+        const exists = await Setting.findOne({ setting_key: s.setting_key });
+        if (!exists) {
+            await Setting.create(s);
+        }
     }
 
     // Seed Team Members

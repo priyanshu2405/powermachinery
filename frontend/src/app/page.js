@@ -36,21 +36,43 @@ export default async function Home() {
         <div className="container">
           <div className={styles.aboutGrid}>
             <div className={styles.aboutContent}>
-              <h2 className="section-title" style={{ alignItems: 'flex-start', textAlign: 'left' }}>About Us</h2>
+              <h2 className="section-title" style={{ alignItems: 'flex-start', textAlign: 'left' }}>
+                {settings.about_title || 'About Us'}
+              </h2>
               <p className={styles.leadText}>
-                We are industry leaders in providing robust infrastructure support through our state-of-the-art crushing plants.
+                {settings.about_lead || 'We are industry leaders in providing robust infrastructure support through our state-of-the-art crushing plants.'}
               </p>
-              <p className={styles.text}>
-                At {settings.company_name}, we believe in laying the strongest foundations. We specialize in the operation and management of advanced <strong>200/300 TPH crushing plants</strong>, delivering high-quality aggregates for mega infrastructure projects across the nation.
-              </p>
-              <p className={styles.text}>
-                Our operations are deeply rooted in ethical practices, ensuring transparency, environmental consciousness, and unwavering reliability for our partners.
-              </p>
+              {settings.about_text_1 ? (
+                <p className={styles.text} style={{ whiteSpace: 'pre-line' }}>
+                  {settings.about_text_1}
+                </p>
+              ) : (
+                <p className={styles.text}>
+                  At {settings.company_name || 'ABHIRISHI INFRA PRIVATE LIMITED'}, we believe in laying the strongest foundations. We specialize in the operation and management of advanced <strong>200/300 TPH crushing plants</strong>, delivering high-quality aggregates for mega infrastructure projects across the nation.
+                </p>
+              )}
+              {settings.about_text_2 ? (
+                <p className={styles.text} style={{ whiteSpace: 'pre-line' }}>
+                  {settings.about_text_2}
+                </p>
+              ) : !settings.about_text_1 ? (
+                <p className={styles.text}>
+                  Our operations are deeply rooted in ethical practices, ensuring transparency, environmental consciousness, and unwavering reliability for our partners.
+                </p>
+              ) : null}
             </div>
             <div className={styles.aboutImageWrapper}>
-              <div className={styles.imagePlaceholder}>
-                [ Industrial Crushing Plant Image Here ]
-              </div>
+              {settings.about_image ? (
+                <img 
+                  src={getImageUrl(settings.about_image)} 
+                  alt={settings.about_title || 'About Us'} 
+                  className={styles.aboutImage}
+                />
+              ) : (
+                <div className={styles.imagePlaceholder}>
+                  [ Industrial Crushing Plant Image Here ]
+                </div>
+              )}
             </div>
           </div>
         </div>
