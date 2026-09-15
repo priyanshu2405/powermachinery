@@ -103,6 +103,38 @@ export default function AdminDashboard() {
     }
   };
 
+  // Helper to convert and compress image to base64 Data URL for zero-dependency storage
+  const fileToDataUrl = (file, maxWidth = 1200, quality = 0.82) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   // --- About Us Handlers ---
   const handleAboutImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -125,19 +157,48 @@ export default function AdminDashboard() {
     const token = localStorage.getItem('adminToken');
     try {
       let updatedImageUrl = settings.about_image || '';
+
       if (aboutImageFile) {
-        const formData = new FormData();
-        formData.append('image', aboutImageFile);
-        formData.append('key', 'about_image');
-        const uploadRes = await fetch(`${API_BASE}/settings/upload`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: formData
-        });
-        if (!uploadRes.ok) throw new Error('Failed to upload About Us image');
-        const uploadData = await uploadRes.json();
-        updatedImageUrl = uploadData.imageUrl;
-        setSettings(prev => ({ ...prev, about_image: updatedImageUrl }));
+        let uploadSucceeded = false;
+        // 1. First attempt: Use the backend /upload route
+        try {
+          const formData = new FormData();
+          formData.append('image', aboutImageFile);
+          formData.append('key', 'about_image');
+          const uploadRes = await fetch(`${API_BASE}/settings/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+          });
+          if (uploadRes.ok) {
+            const uploadData = await uploadRes.json();
+            updatedImageUrl = uploadData.imageUrl;
+            uploadSucceeded = true;
+          }
+        } catch (uploadErr) {
+          console.warn('Backend /upload endpoint unavailable:', uploadErr);
+        }
+
+        // 2. Fallback: If backend is still deploying on Render or /upload returns 404,
+        // compress image to web-optimized data URL and store via existing PUT /settings/about_image
+        if (!uploadSucceeded) {
+          try {
+            updatedImageUrl = await fileToDataUrl(aboutImageFile);
+            await fetch(`${API_BASE}/settings/about_image`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ value: updatedImageUrl })
+            });
+            uploadSucceeded = true;
+          } catch (dataErr) {
+            console.error('Failed to convert image to data URL:', dataErr);
+          }
+        }
+
+        if (uploadSucceeded) {
+          setSettings(prev => ({ ...prev, about_image: updatedImageUrl }));
+          setAboutImagePreview(updatedImageUrl);
+        }
       } else if (settings.about_image === '') {
         await fetch(`${API_BASE}/settings/about_image`, {
           method: 'PUT',
@@ -146,6 +207,7 @@ export default function AdminDashboard() {
         });
       }
 
+      // Save all text settings
       const aboutFields = {
         about_title: settings.about_title || 'About Us',
         about_lead: settings.about_lead || '',
@@ -434,6 +496,19 @@ export default function AdminDashboard() {
                     accept="image/*"
                     onChange={handleAboutImageChange} 
                   />
+                  <div style={{ marginTop: '8px' }}>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      placeholder="Or paste an image URL directly (e.g. https://...)"
+                      value={settings.about_image && !settings.about_image.startsWith('data:') ? settings.about_image : ''}
+                      onChange={(e) => {
+                        setAboutImageFile(null);
+                        setAboutImagePreview(e.target.value);
+                        setSettings(prev => ({ ...prev, about_image: e.target.value }));
+                      }} 
+                    />
+                  </div>
                   {aboutImagePreview ? (
                     <div className={styles.aboutPreviewContainer}>
                       <img 
